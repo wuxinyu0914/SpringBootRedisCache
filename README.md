@@ -1,6 +1,7 @@
 # SpringBootRedisCache
 Springboot集成Redis缓存
 
+数据库连接集成JPA
 
 **重点配置**
 
