@@ -22,8 +22,11 @@ public class SysUserService implements ISysUserService{
 
     @Cacheable(value = "userId",unless="#result == null")
     @Override
-    public Optional<SysUser> findUserId(Integer userId) {
+    public SysUser findUserId(Integer userId) {
         Optional<SysUser> user = userRepository.findById(userId);
-        return user;
+        if(user.isPresent()){
+           return user.get();
+        }
+        return null;
     }
 }

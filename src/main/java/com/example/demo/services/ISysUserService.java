@@ -16,5 +16,5 @@ public interface ISysUserService {
      * @param userId
      * @return
      */
-    Optional<SysUser> findUserId(Integer userId);
+    SysUser findUserId(Integer userId);
 }
