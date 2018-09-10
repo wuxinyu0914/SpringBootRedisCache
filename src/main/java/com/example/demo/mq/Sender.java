@@ -45,6 +45,17 @@ public class Sender implements RabbitTemplate.ConfirmCallback{
         template.convertAndSend(queue.getName(),user);
     }
 
+    /**
+     * 发送消息(Fanout广播模式)
+     * @param user
+     */
+    public void sendFanout(SysUser user){
+        System.out.println("发送Fanout消息===="+user.getUserName());
+        template.convertAndSend(RabbitConfig.FANOUT_NAME,"",user);
+    }
+
+
+
     @Override
     public void confirm(CorrelationData correlationData, boolean b, String s) {
         System.out.println("消息ID="+correlationData.getId());

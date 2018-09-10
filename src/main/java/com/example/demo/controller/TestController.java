@@ -38,5 +38,15 @@ public class TestController {
         return "OK";
     }
 
+    @GetMapping("testMqToFanout")
+    public String testMqToFanout(Integer userId){
+        SysUser user =  sysUserService.findUserId(userId);
+        if (user!=null){
+            sender.sendFanout(user);
+        }
+        return "OK-Fanout";
+    }
+
+
 
 }
