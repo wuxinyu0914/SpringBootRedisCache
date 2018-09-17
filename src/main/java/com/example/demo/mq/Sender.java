@@ -1,15 +1,11 @@
 package com.example.demo.mq;
 
-import com.example.demo.config.RabbitConfig;
+import com.example.demo.config.RabbitConstants;
 import com.example.demo.model.SysUser;
-import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.support.CorrelationData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 
 /**
  * @Author:wuxy
@@ -19,11 +15,13 @@ import javax.annotation.Resource;
 @Component
 public class Sender implements RabbitTemplate.ConfirmCallback{
 
-    @Autowired
-    private AmqpTemplate template;
+    private RabbitTemplate rabbitTemplate;
 
-    @Resource(name="taskQueue")
-    private Queue queue;
+    @Autowired
+    public Sender(RabbitTemplate template){
+        rabbitTemplate=template;
+        rabbitTemplate.setConfirmCallback(this);
+    }
 
     /**
      * 发送消息(topic模式)
@@ -32,7 +30,7 @@ public class Sender implements RabbitTemplate.ConfirmCallback{
     public void sendTopic(SysUser user){
         System.out.println("发送消息===="+user.getUserName());
         // Topic 转发模式
-        template.convertAndSend(RabbitConfig.EXCHANGE_NAME,RabbitConfig.ROUTINGKEY_NAME,user);
+        rabbitTemplate.convertAndSend(RabbitConstants.EXCHANGE_NAME,RabbitConstants.ROUTINGKEY_NAME,user);
     }
 
     /**
@@ -42,7 +40,7 @@ public class Sender implements RabbitTemplate.ConfirmCallback{
     public void sendDirect(SysUser user){
         System.out.println("发送消息===="+user.getUserName());
         //Direct模式 一对一发送
-        template.convertAndSend(queue.getName(),user);
+        rabbitTemplate.convertAndSend(RabbitConstants.QUEUE_NAME,user);
     }
 
     /**
@@ -51,14 +49,18 @@ public class Sender implements RabbitTemplate.ConfirmCallback{
      */
     public void sendFanout(SysUser user){
         System.out.println("发送Fanout消息===="+user.getUserName());
-        template.convertAndSend(RabbitConfig.FANOUT_NAME,"",user);
+        rabbitTemplate.convertAndSend(RabbitConstants.FANOUT_NAME,"",user);
     }
 
-
-
+    /**
+     * 消息发送成功确认
+     * @param correlationData
+     * @param b
+     * @param s
+     */
     @Override
     public void confirm(CorrelationData correlationData, boolean b, String s) {
-        System.out.println("消息ID="+correlationData.getId());
+        System.out.println("CorrelationData="+correlationData+";b="+b+";s="+s);
         if(b){
             System.out.println("消息发送成功");
         }else{
